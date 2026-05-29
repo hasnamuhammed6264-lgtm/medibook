@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=medibook-super-secret-key-2024
+      - DATABASE_URL=sqlite:///medibook.db
+      - DEBUG=True
+    volumes:
+      - ./instance:/app/instance
+    restart: always
