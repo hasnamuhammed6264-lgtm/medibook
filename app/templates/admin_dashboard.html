@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 class="mb-4"><i class="bi bi-speedometer2 text-primary"></i> Admin Dashboard</h3>
+
+<!-- Stats Row -->
+<div class="row g-4 mb-5">
+  <div class="col-md-3">
+    <div class="card p-4 text-center border-start border-primary border-4">
+      <i class="bi bi-people-fill text-primary" style="font-size:2rem"></i>
+      <h2 class="mt-2 fw-bold">{{ total_patients }}</h2>
+      <p class="text-muted mb-0">Total Patients</p>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 text-center border-start border-success border-4">
+      <i class="bi bi-person-badge-fill text-success" style="font-size:2rem"></i>
+      <h2 class="mt-2 fw-bold">{{ total_doctors }}</h2>
+      <p class="text-muted mb-0">Total Doctors</p>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 text-center border-start border-warning border-4">
+      <i class="bi bi-calendar-check-fill text-warning" style="font-size:2rem"></i>
+      <h2 class="mt-2 fw-bold">{{ total_appointments }}</h2>
+      <p class="text-muted mb-0">Total Appointments</p>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-4 text-center border-start border-danger border-4">
+      <i class="bi bi-hourglass-split text-danger" style="font-size:2rem"></i>
+      <h2 class="mt-2 fw-bold">{{ pending_appointments }}</h2>
+      <p class="text-muted mb-0">Pending</p>
+    </div>
+  </div>
+</div>
+
+<!-- All Appointments Table -->
+<div class="card p-4 mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="bi bi-table text-primary"></i> All Appointments</h5>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-primary">
+        <tr>
+          <th>#</th><th>Patient</th><th>Doctor</th>
+          <th>Specialty</th><th>Date</th><th>Time</th>
+          <th>Reason</th><th>Status</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for apt in appointments %}
+        <tr>
+          <td>{{ apt.id }}</td>
+          <td>{{ apt.patient.full_name }}</td>
+          <td>{{ apt.doctor.user.full_name }}</td>
+          <td>{{ apt.doctor.specialty }}</td>
+          <td>{{ apt.date }}</td>
+          <td>{{ apt.time_slot }}</td>
+          <td>{{ apt.reason or '—' }}</td>
+          <td>
+            {% if apt.status == 'confirmed' %}
+              <span class="badge bg-success">Confirmed</span>
+            {% elif apt.status == 'pending' %}
+              <span class="badge bg-warning text-dark">Pending</span>
+            {% elif apt.status == 'cancelled' %}
+              <span class="badge bg-danger">Cancelled</span>
+            {% else %}
+              <span class="badge bg-secondary">Completed</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if apt.status == 'pending' %}
+              <a href="/admin/confirm/{{ apt.id }}" class="btn btn-sm btn-success">Confirm</a>
+              <a href="/admin/cancel/{{ apt.id }}" class="btn btn-sm btn-danger">Cancel</a>
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- All Users Table -->
+<div class="card p-4">
+  <h5 class="mb-3"><i class="bi bi-people text-primary"></i> All Users</h5>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-primary">
+        <tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Phone</th><th>Joined</th></tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.full_name }}</td>
+          <td>{{ user.email }}</td>
+          <td><span class="badge bg-{{ 'danger' if user.role == 'admin' else 'primary' if user.role == 'doctor' else 'secondary' }}">{{ user.role }}</span></td>
+          <td>{{ user.phone or '—' }}</td>
+          <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

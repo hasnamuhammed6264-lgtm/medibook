@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card p-4">
+      <h4 class="text-primary mb-1"><i class="bi bi-calendar-plus"></i> Book Appointment</h4>
+      <p class="text-muted mb-4">with <strong>{{ doctor.user.full_name }}</strong> — {{ doctor.specialty }}</p>
+
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Select Date</label>
+          <input type="date" name="date" class="form-control" required
+                 min="{{ today }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Select Time Slot</label>
+          <select name="time_slot" class="form-select" required>
+            <option value="">-- Choose a time --</option>
+            <option>09:00 AM</option>
+            <option>10:00 AM</option>
+            <option>11:00 AM</option>
+            <option>12:00 PM</option>
+            <option>02:00 PM</option>
+            <option>03:00 PM</option>
+            <option>04:00 PM</option>
+            <option>05:00 PM</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Reason for Visit</label>
+          <textarea name="reason" class="form-control" rows="3"
+                    placeholder="Briefly describe your symptoms or reason..."></textarea>
+        </div>
+        <div class="alert alert-info small">
+          <i class="bi bi-info-circle"></i>
+          Consultation fee: <strong>₹{{ doctor.fee }}</strong>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-check-circle"></i> Confirm Booking
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
