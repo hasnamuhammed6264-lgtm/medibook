@@ -1,24 +1,34 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
-from app import db, bcrypt
+from app import db, bcrypt, limiter
 from app.models import User
+import bleach
 
 auth = Blueprint('auth', __name__)
+
+def sanitize(text):
+    return bleach.clean(text.strip()) if text else ''
 
 @auth.route('/')
 def home():
     return render_template('home.html', title='Home')
 
 @auth.route('/register', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('patient.dashboard'))
     if request.method == 'POST':
-        full_name        = request.form.get('full_name')
-        email            = request.form.get('email')
-        phone            = request.form.get('phone')
+        full_name        = sanitize(request.form.get('full_name'))
+        email            = sanitize(request.form.get('email'))
+        phone            = sanitize(request.form.get('phone'))
         password         = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
+
+        # Validation
+        if len(password) < 6:
+            flash('Password must be at least 6 characters!', 'danger')
+            return redirect(url_for('auth.register'))
 
         if password != confirm_password:
             flash('Passwords do not match!', 'danger')
@@ -40,11 +50,12 @@ def register():
     return render_template('register.html', title='Register')
 
 @auth.route('/login', methods=['GET', 'POST'])
+@limiter.limit("10 per minute")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('patient.dashboard'))
     if request.method == 'POST':
-        email    = request.form.get('email')
+        email    = sanitize(request.form.get('email'))
         password = request.form.get('password')
         user     = User.query.filter_by(email=email).first()
 
